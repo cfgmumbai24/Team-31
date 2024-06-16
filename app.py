@@ -13,7 +13,7 @@ app = Flask(__name__)
 cors = CORS(app)
 
 # Set up OpenAI API key
-openai.api_key = ''
+openai.api_key = OPENAI_API_KEY
 
 # Hardcoded transcriptions for demo purposes
 transcriptions = {
