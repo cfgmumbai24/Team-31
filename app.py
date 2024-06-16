@@ -6,6 +6,7 @@ import openai
 from gtts import gTTS
 import os
 import uuid
+import logging
 from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
@@ -107,9 +108,9 @@ logging.basicConfig(level=logging.DEBUG)
 # Configuration for connecting to MySQL
 db_config = {
     'user': 'root',
-    'password': 'root',
+    'password': 'Manaswani@423',
     'host': 'localhost',  # Change if necessary
-    'database': 'MargShala',
+    'database': 'margshala',
     'raise_on_warnings': True
 }
 
@@ -247,6 +248,98 @@ def delete_user(id, phone_number):
         return jsonify({'message': 'User deleted successfully'}), 200
     else:
         return jsonify({'error': 'User not found'}), 404
+
+def get_db_connection():
+    try:
+        connection = mysql.connector.connect(**db_config)
+        app.logger.debug("Database connection successful")
+        return connection
+    except mysql.connector.Error as err:
+        app.logger.error(f"Database connection error: {err}")
+        raise
+
+def execute_query(query, params=None, fetchone=False, commit=False):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    result = None
+    try:
+        cursor.execute(query, params)
+        if fetchone:
+            result = cursor.fetchone()
+        else:
+            result = cursor.fetchall()
+        if commit:
+            conn.commit()
+    except mysql.connector.Error as err:
+        app.logger.error(f"Query error: {err}")
+        conn.rollback()
+    finally:
+        cursor.close()
+        conn.close()
+    return result
+
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+@app.route('/login', methods=['POST'])
+def login_user():
+    data = request.json
+
+    app.logger.debug(f"Received data: {data}")
+
+    # Validate the incoming data
+    required_fields = ['phone_number', 'password']
+    if not all(field in data for field in required_fields):
+        return jsonify({'error': 'Missing fields in the request data'}), 400
+
+    if len(data['phone_number']) != 10 or not data['phone_number'].isdigit():
+        return jsonify({'error': 'Invalid phone number. It must be exactly 10 digits.'}), 400
+
+    # Fetch user by phone number
+    query = "SELECT * FROM users WHERE phone_number = %s"
+    user = execute_query(query, (data['phone_number'],), fetchone=True)
+
+    if user:
+        # Compare the hashed password
+        hashed_password = hash_password(data['password'])
+        if hashed_password == user[6]:
+            return jsonify({'message': 'Login successful'}), 200
+        else:
+            return jsonify({'error': 'Incorrect password'}), 401
+    else:
+        return jsonify({'error': 'User not found'}), 404
+    
+@app.route('/mentors', methods=['POST'])
+def create_mentor():
+    data = request.json
+    
+    app.logger.debug(f"Received mentor data: {data}")
+    
+    # Validate the incoming data
+    required_fields = ['phone_number', 'password']
+    if not all(field in data for field in required_fields):
+        return jsonify({'error': 'Missing fields in the request data'}), 400
+
+    if len(data['phone_number']) != 10 or not data['phone_number'].isdigit():
+        return jsonify({'error': 'Invalid phone number. It must be exactly 10 digits.'}), 400
+
+    # Check for duplicate phone number
+    duplicate_query = "SELECT * FROM Mentors WHERE phone_number = %s"
+    duplicate_mentor = execute_query(duplicate_query, (data['phone_number'],), fetchone=True)
+
+    if duplicate_mentor:
+        return jsonify({'error': 'Phone number already exists. Please use a different phone number.'}), 409
+    
+    password_hash = hash_password(data['password'])
+
+    query = """
+        INSERT INTO Mentors (phone_number, password_hash)
+        VALUES (%s, %s)
+    """
+    params = (data['phone_number'], password_hash)
+    
+    execute_query(query, params, commit=True)
+    return jsonify({'message': 'Mentor created successfully'}), 201
 
 if __name__ == '__main__':
     app.run(debug=True)

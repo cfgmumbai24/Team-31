@@ -1,0 +1,133 @@
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    height: 600px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chat-header {
+    background-color: #075e54;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    background-color: #e5ddd5;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-message {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px; /* Reduced margin */
+    padding: 8px; /* Reduced padding */
+    border-radius: 20px; /* More rounded to match WhatsApp */
+    max-width: 70%;
+    align-self: flex-start;
+    position: relative;
+    word-wrap: break-word;
+    background-color: #fff;
+}
+
+.chat-message.user {
+    background-color: #dcf8c6;
+    align-self: flex-end;
+}
+
+.message-content {
+    font-size: 0.85em; /* Slightly smaller font size */
+}
+
+.message-time {
+    font-size: 0.7em;
+    color: #888;
+    text-align: right;
+    margin-top: 5px;
+}
+
+.chat-input {
+    display: flex;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border-top: 1px solid #ddd;
+    align-items: center;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+    margin-right: 10px;
+}
+
+.chat-input button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    outline: none;
+    color: #075e54;
+    margin-left: 10px;
+}
+
+.chat-input button svg {
+    width: 24px;
+    height: 24px;
+}
+
+.mic-button svg {
+    fill: #075e54;
+}
+
+.mic-button.pressed svg {
+    fill: #ff4040;
+}
+
+.mic-button.pressed {
+    transform: scale(1.1);
+}
+
+.mic-button:hover svg,
+.chat-input button:hover svg {
+    fill: #003a30;
+}
+
+/* Styles for the custom voice note button */
+.voice-note-button {
+    background-color: #075e54;
+    color: white;
+    padding: 8px 15px; /* Reduced padding */
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 5px; /* Reduced margin */
+    font-size: 0.85em; /* Slightly smaller font size */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 90%; /* Make the button thinner and responsive */
+}
+
+.voice-note-button:hover {
+    background-color: #054d45;
+}
+
+.voice-note-button .mic-icon {
+    margin-right: 10px;
+    fill: white;
+    width: 16px;
+    height: 16px;
+}
